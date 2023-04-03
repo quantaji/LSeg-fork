@@ -209,7 +209,13 @@ class LSeg(BaseModel):
                 out = self.scratch.head_block(out)
             out = self.scratch.head_block(out, False)
 
-        out = self.scratch.output_conv(out)
+        # out = self.scratch.output_conv(out)
+        out = torch.nn.functional.interpolate(
+            input=out,
+            size=[x.size(2), x.size(3)],
+            mode="bilinear",
+            align_corners=True,
+        )
 
         return out
 
@@ -241,7 +247,13 @@ class LSeg(BaseModel):
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
         image_features = image_features.view(imshape[0], imshape[2], imshape[3], -1).permute(0, 3, 1, 2)
         # upscale
-        image_features = self.scratch.output_conv(image_features)
+        # image_features = self.scratch.output_conv(image_features)
+        image_features = torch.nn.functional.interpolate(
+            input=image_features,
+            size=[x.size(2), x.size(3)],
+            mode="bilinear",
+            align_corners=True,
+        )
 
         return image_features
 
