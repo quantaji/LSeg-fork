@@ -219,7 +219,7 @@ class LSeg(BaseModel):
 
         return out
 
-    def forward_image(self, x):
+    def forward_image(self, x, size=None):
 
         if self.channels_last == True:
             x.contiguous(memory_format=torch.channels_last)
@@ -248,9 +248,11 @@ class LSeg(BaseModel):
         image_features = image_features.view(imshape[0], imshape[2], imshape[3], -1).permute(0, 3, 1, 2)
         # upscale
         # image_features = self.scratch.output_conv(image_features)
+        if size is None:
+            size = [x.size(2), x.size(3)]
         image_features = torch.nn.functional.interpolate(
             input=image_features,
-            size=[x.size(2), x.size(3)],
+            size=size,
             mode="bilinear",
             align_corners=True,
         )
